@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot" data-theme="cyan">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammad Hussain — Cyber System OS v5.1 Pro</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyberCyan: '#00f0ff',
+                        cyberPink: '#ff007f',
+                        cyberPurple: '#7000ff',
+                        cyberGreen: '#00ff66',
+                        cyberDark: '#05070e',
+                    },
+                    fontFamily: {
+                        mono: ['Courier New', 'Courier', 'monospace'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Custom External CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="relative h-screen w-screen font-sans overflow-hidden">
+
+    <!-- Scanline Effect -->
+    <div class="scanlines"></div>
+
+    <!-- Background Canvases -->
+    <canvas id="particleCanvas" class="fixed top-0 left-0 w-full h-full z-0"></canvas>
+    <canvas id="matrixCanvas" class="fixed top-0 left-0 w-full h-full z-0 hidden"></canvas>
+
+    <!-- TOP SYSTEM HUD BAR -->
+    <header class="relative z-40 w-full bg-slate-950/90 border-b border-cyan-500/30 px-4 py-2 flex items-center justify-between text-xs font-mono" id="topHeader">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyberCyan animate-pulse" id="hudIndicator"></span>
+                <span class="font-bold text-cyberCyan glow-text-cyan tracking-wider" id="osTitle">HUSSAIN_OS v5.1</span>
+            </div>
+            <span class="text-slate-600 hidden md:inline">|</span>
+            <span class="text-slate-400 hidden md:inline" id="clockDisplay">00:00:00 UTC</span>
+        </div>
+
+        <!-- Audio Frequency Visualizer -->
+        <div class="hidden md:flex items-center gap-2 bg-slate-900 px-3 py-1 rounded border border-slate-800">
+            <span class="text-[10px] text-slate-400">AUDIO-FREQ:</span>
+            <canvas id="audioVisualizer" width="80" height="16"></canvas>
+        </div>
+
+        <!-- System Controls -->
+        <div class="flex items-center gap-3">
+            <button onclick="toggleThemeStyle()" id="themeToggleBtn" class="px-3 py-1 rounded bg-slate-900 border border-cyberPink text-cyberPink hover:bg-cyberPink/20 transition text-[11px]">
+                🎨 THEME: CYAN/PINK
+            </button>
+            <button id="audioToggleBtn" class="px-3 py-1 rounded bg-slate-900 border border-cyberCyan text-cyberCyan hover:bg-cyberCyan/20 transition text-[11px]">
+                🔊 SOUND: ON
+            </button>
+        </div>
+    </header>
+
+    <!-- CYBER NAVIGATION DOCK (NAVBAR) -->
+    <nav class="relative z-40 w-full flex justify-center py-3 px-4">
+        <div class="glass-window px-4 py-2 rounded-2xl flex flex-wrap items-center justify-center gap-2 md:gap-4 border border-cyan-500/40 glow-box-cyan" id="navDock">
+            <button onclick="openWin('terminalWin')" class="dock-item px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyberCyan/40 text-cyberCyan text-xs font-mono font-bold flex items-center gap-2 hover:bg-cyberCyan/20 nav-btn-1">
+                <span>💻</span> Terminal
+            </button>
+            <button onclick="openWin('specsWin')" class="dock-item px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyberPink/40 text-cyberPink text-xs font-mono font-bold flex items-center gap-2 hover:bg-cyberPink/20 nav-btn-2">
+                <span>⚡</span> System Specs
+            </button>
+            <button onclick="openWin('projectsWin')" class="dock-item px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyberPurple/40 text-purple-400 text-xs font-mono font-bold flex items-center gap-2 hover:bg-cyberPurple/20">
+                <span>🚀</span> Projects
+            </button>
+            <button onclick="openWin('snakeWin')" class="dock-item px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyberGreen/40 text-cyberGreen text-xs font-mono font-bold flex items-center gap-2 hover:bg-cyberGreen/20">
+                <span>🐍</span> Cyber Snake
+            </button>
+            <div class="w-px h-6 bg-slate-700 mx-1 hidden md:block"></div>
+            <button id="toggleMatrixBtn" class="dock-item px-3 py-1.5 rounded-xl bg-slate-900/80 border border-cyberGreen/40 text-cyberGreen text-xs font-mono font-bold flex items-center gap-2 hover:bg-cyberGreen/20">
+                <span>📟</span> Matrix Mode
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN DESKTOP WORKSPACE -->
+    <main class="relative z-30 w-full h-[calc(100vh-140px)] p-4 flex flex-col md:flex-row items-center justify-center gap-4 overflow-auto">
+
+        <!-- TERMINAL WINDOW -->
+        <div id="terminalWin" class="glass-window rounded-xl w-full max-w-2xl h-[450px] flex flex-col absolute md:relative z-10 transition-all duration-300">
+            <div class="window-header bg-slate-950/90 px-4 py-2.5 border-b border-cyan-500/30 flex items-center justify-between rounded-t-xl" id="termHeader">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500 inline-block cursor-pointer" onclick="closeWin('terminalWin')"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                    <span class="ml-2 font-mono text-xs text-cyan-400 font-bold" id="termTitle">bash — hussain@cyber-node:~</span>
+                </div>
+                <span class="text-[10px] font-mono text-slate-500">interactive_terminal.sh</span>
+            </div>
+
+            <div class="p-4 flex-1 font-mono text-xs overflow-y-auto space-y-2 text-slate-200" id="terminalOutput">
+                <p class="text-cyberPink font-bold term-welcome" id="termWelcome">SYSTEM BOOT SUCCESSFUL [MUHAMMAD HUSSAIN PORTFOLIO OS v5.1]</p>
+                <p class="text-slate-400">Type <span class="text-cyberCyan font-bold term-help-accent" id="termHelpAccent">'help'</span> to view commands or launch mini-games.</p>
+                <div class="border-b border-slate-800 my-2"></div>
+            </div>
+
+            <div class="p-3 bg-slate-950/90 border-t border-slate-800 flex items-center gap-2 font-mono text-xs rounded-b-xl">
+                <span class="text-cyberPink font-bold prompt-user" id="promptUser">user@node:~$</span>
+                <input type="text" id="terminalInput" class="flex-1 bg-transparent text-cyberCyan outline-none border-none term-input" autofocus placeholder="type a command (help, projects, resume, snake)..." autocomplete="off">
+            </div>
+        </div>
+
+        <!-- SYSTEM SPECS & SKILLS WINDOW -->
+        <div id="specsWin" class="glass-window rounded-xl w-full max-w-md h-[450px] flex-col absolute z-20 hidden border border-cyberPink/50">
+            <div class="window-header bg-slate-950/90 px-4 py-2.5 border-b border-pink-500/30 flex items-center justify-between rounded-t-xl">
+                <span class="font-mono text-xs text-cyberPink font-bold">⚡ SYSTEM_DIAGNOSTICS // SKILLS</span>
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block cursor-pointer" onclick="closeWin('specsWin')"></span>
+            </div>
+            <div class="p-4 font-mono text-xs space-y-4 overflow-y-auto flex-1">
+                <p class="text-slate-300">Front-End Skill Matrix Diagnostics:</p>
+
+                <div>
+                    <div class="flex justify-between mb-1 text-cyberCyan">
+                        <span>HTML5 / CSS3 / Tailwind CSS</span>
+                        <span>95%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 border border-slate-800">
+                        <div class="bg-cyberCyan h-full rounded-full bar-1" id="bar1" style="width: 95%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1 text-cyberPink">
+                        <span>JavaScript (ES6+) / DOM</span>
+                        <span>90%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 border border-slate-800">
+                        <div class="bg-cyberPink h-full rounded-full" style="width: 90%"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex justify-between mb-1 text-cyberGreen">
+                        <span>Bootstrap 5 / jQuery</span>
+                        <span>88%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-2 border border-slate-800">
+                        <div class="bg-cyberGreen h-full rounded-full" style="width: 88%"></div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 mt-2 text-[11px] text-slate-400">
+                    <p class="text-cyberCyan font-bold mb-1 dev-title" id="devTitle">Developer Profile:</p>
+                    <p>• Name: Muhammad Hussain</p>
+                    <p>• Location: Karachi, Pakistan</p>
+                    <p>• GitHub: <a href="https://github.com/hussain2k26" target="_blank" class="text-cyberCyan underline">hussain2k26</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROJECTS & LINKS WINDOW -->
+        <div id="projectsWin" class="glass-window rounded-xl w-full max-w-lg h-[450px] flex-col absolute z-20 hidden border border-cyberPurple/50">
+            <div class="window-header bg-slate-950/90 px-4 py-2.5 border-b border-purple-500/30 flex items-center justify-between rounded-t-xl">
+                <span class="font-mono text-xs text-purple-400 font-bold">🚀 PROJECTS & LIVE LINKS</span>
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block cursor-pointer" onclick="closeWin('projectsWin')"></span>
+            </div>
+            <div class="p-4 font-mono text-xs space-y-3 overflow-y-auto flex-1">
+                <a href="https://hussain2k26.github.io/code-with-hussain/portfolio/" target="_blank" class="block p-3 bg-slate-900/80 rounded-lg border border-slate-800 hover:border-cyberCyan transition">
+                    <h3 class="text-cyberCyan font-bold text-sm">1. Main Portfolio Showcase ↗</h3>
+                    <p class="text-slate-400 mt-1">Explore my professional portfolio hub built for modern web applications.</p>
+                </a>
+                <a href="https://hussain2k26.github.io/resume/" target="_blank" class="block p-3 bg-slate-900/80 rounded-lg border border-slate-800 hover:border-cyberPink transition">
+                    <h3 class="text-cyberPink font-bold text-sm">2. Interactive Resume ↗</h3>
+                    <p class="text-slate-400 mt-1">View my detailed curriculum vitae and technical background.</p>
+                </a>
+                <a href="https://github.com/hussain2k26" target="_blank" class="block p-3 bg-slate-900/80 rounded-lg border border-slate-800 hover:border-cyberGreen transition">
+                    <h3 class="text-cyberGreen font-bold text-sm">3. GitHub Profile (hussain2k26) ↗</h3>
+                    <p class="text-slate-400 mt-1">Check out all repositories, source codes, and daily developer activity.</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- CYBER SNAKE GAME WINDOW -->
+        <div id="snakeWin" class="glass-window rounded-xl w-full max-w-sm h-[450px] flex-col absolute z-20 hidden border border-cyberGreen/50">
+            <div class="window-header bg-slate-950/90 px-4 py-2.5 border-b border-green-500/30 flex items-center justify-between rounded-t-xl">
+                <span class="font-mono text-xs text-cyberGreen font-bold">🐍 CYBER_SNAKE.EXE</span>
+                <span class="w-3 h-3 rounded-full bg-red-500 inline-block cursor-pointer" onclick="closeWin('snakeWin')"></span>
+            </div>
+            <div class="p-4 font-mono text-xs flex flex-col items-center justify-center flex-1 space-y-3">
+                <div class="flex justify-between w-full px-2 text-slate-300">
+                    <span>SCORE: <strong id="snakeScore" class="text-cyberCyan">0</strong></span>
+                    <span>HIGH: <strong id="snakeHigh" class="text-cyberPink">0</strong></span>
+                </div>
+                <canvas id="snakeCanvas" width="260" height="260" class="bg-slate-950 border border-cyberGreen/40 rounded"></canvas>
+                <p class="text-[10px] text-slate-400 text-center">Use Arrow Keys (↑ ↓ ← →) to Play!</p>
+                <button onclick="startSnakeGame()" class="px-4 py-1.5 rounded bg-cyberGreen/20 border border-cyberGreen text-cyberGreen font-bold hover:bg-cyberGreen/40 transition">
+                    ▶ START GAME
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE PANEL: PROFILE & USEFUL QUICK LAUNCH HUB -->
+        <div class="w-full max-w-sm flex flex-col gap-4">
+            
+            <!-- PROFILE CARD -->
+            <div class="glass-window rounded-xl p-4 border-l-4 border-l-cyberPink" id="profileCard">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyberCyan to-cyberPink p-0.5" id="avatarRing">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-mono font-bold text-cyberCyan text-lg" id="avatarText">
+                            MH
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="font-mono text-base font-bold text-white glow-text-cyan" id="profileName">Muhammad Hussain</h2>
+                        <p class="text-xs font-mono text-cyberPink glow-text-pink" id="profileRole">Front-End Developer</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Karachi, PK • Open to Remote</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USEFUL QUICK LAUNCH HUB -->
+            <div class="glass-window rounded-xl p-4 border border-cyberCyan/40" id="quickHub">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                    <span class="font-mono text-xs text-cyberCyan font-bold flex items-center gap-1" id="hubTitle">
+                        ⚡ QUICK LAUNCH HUB
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-400">DIRECT LINKS</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 font-mono text-xs">
+                    <a href="https://hussain2k26.github.io/resume/" target="_blank" class="p-2 rounded bg-slate-900/90 border border-slate-700 hover:border-cyberPink text-slate-300 hover:text-cyberPink text-center transition flex flex-col items-center justify-center gap-1">
+                        <span>📄</span> Resume
+                    </a>
+                    <a href="https://hussain2k26.github.io/code-with-hussain/portfolio/" target="_blank" class="p-2 rounded bg-slate-900/90 border border-slate-700 hover:border-cyberCyan text-slate-300 hover:text-cyberCyan text-center transition flex flex-col items-center justify-center gap-1">
+                        <span>🌐</span> Portfolio
+                    </a>
+                    <a href="https://github.com/hussain2k26" target="_blank" class="col-span-2 p-2 rounded bg-slate-900/90 border border-slate-700 hover:border-cyberGreen text-slate-300 hover:text-cyberGreen text-center transition flex items-center justify-center gap-2">
+                        <span>🐙</span> GitHub Profile (hussain2k26)
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- BOTTOM TASKBAR -->
+    <footer class="fixed bottom-0 left-0 w-full z-40 bg-slate-950/90 border-t border-slate-800 px-4 py-2 flex items-center justify-between text-xs font-mono" id="bottomFooter">
+        <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-cyberCyan/10 text-cyberCyan border border-cyberCyan/30 text-[10px]" id="statusBadge">STATUS: ONLINE</span>
+            <span class="text-slate-500 text-[10px] hidden sm:inline">CLICK SCREEN FOR PARTICLE BURST</span>
+        </div>
+        <div class="text-slate-400 text-[11px]">
+            CREATED FOR SHOWCASE & INSTAGRAM STORIES 📸
+        </div>
+    </footer>
+
+    <!-- Custom External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>

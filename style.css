@@ -1,0 +1,89 @@
+body {
+    background-color: #03050c;
+    color: #f8fafc;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* CRT Scanline Overlay */
+.scanlines {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.35) 50%,
+        rgba(0, 0, 0, 0.35)
+    );
+    background-size: 100% 4px;
+    z-index: 50;
+    opacity: 0.4;
+}
+
+/* Default Theme (Cyan / Pink) */
+.glass-window {
+    background: rgba(10, 15, 28, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 35px rgba(0, 240, 255, 0.15);
+}
+
+/* Matrix Theme Mode Overrides */
+[data-theme="matrix"] body {
+    background-color: #020804;
+}
+
+[data-theme="matrix"] .glass-window {
+    background: rgba(3, 20, 8, 0.9);
+    border: 1px solid rgba(0, 255, 102, 0.4);
+    box-shadow: 0 0 35px rgba(0, 255, 102, 0.15);
+}
+
+[data-theme="matrix"] header, 
+[data-theme="matrix"] footer {
+    border-color: rgba(0, 255, 102, 0.3) !important;
+    background-color: rgba(2, 12, 5, 0.95) !important;
+}
+
+[data-theme="matrix"] .glow-text-cyan,
+[data-theme="matrix"] .glow-text-pink {
+    text-shadow: 0 0 10px rgba(0, 255, 102, 0.8) !important;
+    color: #00ff66 !important;
+}
+
+[data-theme="matrix"] #profileCard {
+    border-left-color: #00ff66 !important;
+}
+
+[data-theme="matrix"] #avatarRing {
+    background: linear-gradient(to top right, #00ff66, #00f0ff) !important;
+}
+
+[data-theme="matrix"] #avatarText {
+    color: #00ff66 !important;
+}
+
+/* Neon Glow Utility Classes */
+.glow-text-cyan { text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 20px rgba(0, 240, 255, 0.4); }
+.glow-text-pink { text-shadow: 0 0 10px rgba(255, 0, 127, 0.8), 0 0 20px rgba(255, 0, 127, 0.4); }
+.glow-text-green { text-shadow: 0 0 10px rgba(0, 255, 102, 0.8); }
+.glow-box-cyan { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+
+/* Custom Neon Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #05070e; }
+::-webkit-scrollbar-thumb { background: #00f0ff; border-radius: 4px; }
+
+/* Draggable Window Handle */
+.window-header { cursor: move; }
+
+/* Floating Nav Dock Hover Animation */
+.dock-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dock-item:hover {
+    transform: translateY(-4px) scale(1.05);
+}
